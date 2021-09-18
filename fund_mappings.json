@@ -1,0 +1,33 @@
+{
+  "mappings" : {
+    "dynamic": false, 
+    "properties": {
+      "close": {
+        "type": "double"
+      },
+      "date": {
+        "type": "date",
+        "format": "yyyy-MM-dd"
+      },
+      "high": {
+        "type": "double"
+      },
+      "low": {
+        "type": "double"
+      },
+      "open": {
+        "type": "double"
+      },
+      "symbol": {
+        "type": "keyword"
+      },
+      "volume": {
+        "type": "long"
+      }
+    }
+  },
+  "settings":{
+    "index.number_of_shards": 2,
+    "index.number_of_replicas": 1
+  }
+}

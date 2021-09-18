@@ -1,0 +1,24 @@
+{
+    "query": {"bool": {"must": [{"range": {"date": {"gte": "%s", "lte": "%s"}}}, {"term": {"symbol": "%s"}}]}},
+    "aggs": {
+        "Backtest_Supertrend": {
+            "date_histogram": {"field": "date", "fixed_interval": "1d", "format": "yyyy-MM-dd"},
+            "aggs": {
+                "SDaily": {"bucket_selector": {"buckets_path": {"count": "_count"}, "script": "params.count > 0"}}, 
+                "High": {"avg": {"field": "high"}},
+                "Low": {"avg": {"field": "low"}},
+                "Daily": {"avg": {"field": "close"}},
+                "PClose": {"moving_fn": {"script": "MovingFunctions.sum(values)", "window": 1, "buckets_path": "Daily"}},
+		        "SPClose":{"bucket_selector": {"buckets_path": {"PClose": "PClose"}, "script": "params.PClose > 0"}},
+                "TR": {"bucket_script": {"buckets_path": {"High": "High", "Low":"Low", "PClose":"PClose"}, 
+                        "script": "Math.max(Math.max(params.High - params.Low, Math.abs(params.High - params.PClose)), Math.abs(params.Low - params.PClose))"}},
+                "ATR": {"moving_fn": {"script": "MovingFunctions.unweightedAvg(values)", "window": 14, "buckets_path": "TR", "shift": 1}},
+                "BUBand": {"bucket_script": {"buckets_path": {"High": "High", "Low":"Low", "ATR":"ATR"}, 
+                        "script": "0.5 * (params.High + params.Low) + 3 * params.ATR"}},
+                "BLBand": {"bucket_script": {"buckets_path": {"High": "High", "Low": "Low", "ATR": "ATR"},
+                        "script": "0.5 * (params.High + params.Low) - 3 * params.ATR"}}
+            }
+        }
+    }, 
+    "from": 0, "size": 0
+}
